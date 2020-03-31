@@ -1,0 +1,276 @@
+.nav-link.nav-butt-link {
+}
+
+#hero {
+  width: 100%;
+}
+
+.navbar-light .navbar-brand {
+  background-position: center;
+  background-size: 100%;
+  background-repeat: no-repeat;
+  width: 170px;
+  height: 35px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  font-size: 31px;
+  background-image: url("../../assets/img/SPERRY_LOGO%20Nav.png");
+  margin-top: -5px;
+}
+
+.dh-header-non-rectangular-container h1, p {
+  color: white;
+  font-weight: bold;
+}
+
+footer {
+  background-color: #292c2f;
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12);
+  box-sizing: border-box;
+  width: 100%;
+  text-align: left;
+  font: bold 16px sans-serif;
+  padding: 55px 50px;
+  position: absolute;
+  color: #fff;
+}
+
+.nav-link.nav-butt-link {
+}
+
+.footer-about h4 {
+  display: block;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.text-center.press_size {
+  font-size: 22px;
+  padding-top: 10px;
+  background-color: #64a0d2;
+  padding-bottom: 10px;
+  margin-top: 5px;
+}
+
+.col-6.col-sm-6.col-md-4.col-lg-3.item.press_pic {
+}
+
+@media (min-width: 992px) {
+  #sperry-brand {
+    margin-left: 0px;
+  }
+}
+
+@media (min-width: 300px) {
+  #sperry-brand {
+    margin-left: 15px;
+  }
+}
+
+@media (min-width: 300px) {
+  #midnav {
+    font-size: 25px;
+    line-height: 29px;
+  }
+}
+
+@media (min-width: 576px) {
+  #midnav {
+    font-size: 16px;
+    line-height: 18px;
+  }
+}
+
+@media (min-width: 300px) {
+  #filtermenu {
+    font-size: 22px;
+    line-height: 37px;
+    letter-spacing: 1px;
+    padding-left: 11px;
+  }
+}
+
+@media (min-width: 576px) {
+  #filtermenu {
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: 0px;
+    padding-left: 0px;
+  }
+}
+
+@media (min-width: 992px) {
+  .para {
+    padding-left: 10%;
+    padding-right: 10%;
+  }
+}
+
+.img-fluid.logoimg {
+  max-width: 75%;
+  max-height: 75%;
+  min-height: 70px;
+  min-width: 70px;
+}
+
+body {
+}
+
+@media (min-width: 992px) {
+  #mainslide {
+    padding-left: 60px;
+    padding-right: 60px;
+  }
+}
+
+.modal-header {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: start;
+  align-items: flex-start;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  border-bottom: 0px solid rgba(222,226,230,0);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  padding: 0px;
+  padding-right: 15px;
+  padding-top: 10px;
+  color: #64a0d2;
+}
+
+.close:not(:disabled):not(.disabled):focus, .close:not(:disabled):not(.disabled):hover {
+  opacity: 1;
+}
+
+.close:not(:disabled):not(.disabled):focus, .close:not(:disabled):not(.disabled):hover {
+  opacity: 1;
+}
+
+span {
+}
+
+.close:hover {
+  color: rgba(41,44,47,0.83);
+  text-decoration: none;
+}
+
+.close {
+  float: right;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #64a0d2;
+  text-shadow: 0 1px 0 rgba(255,255,255,0);
+  opacity: 1;
+}
+
+.carousel {
+  position: relative;
+}
+
+.d-inline-flex.footer-links {
+  color: #5487b3;
+  font-family: Roboto, sans-serif;
+  font-size: 16px;
+  padding: 5px;
+  padding-top: 7px;
+  padding-left: 7px;
+  letter-spacing: 0px;
+}
+
+@media (min-width: 768px) {
+  .col-md-6.footer-about {
+  }
+}
+
+@media (min-width: 1200px) {
+  .row.d-xl-flex.justify-content-xl-center {
+    padding-top: 10px;
+  }
+}
+
+.text-left {
+  line-height: 18px;
+  font-family: Abel, sans-serif;
+}
+
+@media (min-width: 992px) {
+  #hero {
+  }
+}
+
+@media (min-width: 992px) {
+  #hero {
+  }
+}
+
+.nav-item.nav-butt {
+  font-family: Roboto, sans-serif;
+}
+
+.para {
+  line-height: 19px;
+}
+
+.col-6.col-sm-6.col-md-4.col-lg-3.item {
+  padding-top: 10px;
+}
+
+@media (min-width: 300px) {
+  .shadow-lg.form-control.form-control-sm {
+    max-width: 263px;
+  }
+}
+
+@media (min-width: 576px) {
+  .shadow-lg.form-control.form-control-sm {
+  }
+}
+
+@media (min-width: 300px) {
+  .mb-auto, .my-auto {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+}
+
+@media (min-width: 768px) {
+  #mdrow {
+    padding-right: 25px;
+  }
+}
+
+article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
+}
+
+#body {
+  height: 100vh;
+}
+
+@media (min-width: 300px) {
+  .img-fluid.logoimg {
+    padding: 5px;
+  }
+}
+
+@media (min-width: 576px) {
+  .img-fluid.logoimg {
+    padding: 0px;
+  }
+}
+
+.img-fluid.logoimg {
+  max-width: 75%;
+  max-height: 75%;
+  min-height: 70px;
+  min-width: 70px;
+  margin-left: 0px;
+}
+
+.carousel {
+  position: relative;
+}
+
