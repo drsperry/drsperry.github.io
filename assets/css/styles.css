@@ -274,3 +274,10 @@ article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
   position: relative;
 }
 
+.navbar-brand.d-sm-none.celebratingbanner {
+}
+
+.celebratingbanner {
+  opacity: 1;
+}
+
