@@ -1,0 +1,37 @@
+/* Styles for webtrax report */
+
+BODY {background-color: #ffffff; color: #000000;}
+H1, H2, H3, H4 {font-family: sans-serif; font-weight: bold;}
+h1 {font-size: 125%;}
+h2 {font-size: 110%;}
+h3 {font-size: 100%;}
+h4 {font-size: 95%;}
+td {padding-top: 0; padding-bottom: 0; margin-top: 0; margin-bottom: 0; border-top-width: 0; border-bottom-width: 0; line-height: 90%;}
+th {font-family: sans-serif;}
+dt {float: left}
+dd {margin-left: 40px}
+.brow {}
+.vc {}
+.indexer {font-style: italic;}
+.refdom {font-weight: bold;}
+.newref {color: red;}
+.inred {color: red;}
+.max {color: red;}
+.min {color: blue;}
+.query {color: green;}
+.details {font-size: 80%;}
+.navbar {font-size: 70%;}
+.chart {}
+.monthsum {}
+.analysis {}
+.sessd {}
+.pie {}
+.fnf {color: gray;}
+.filetype {font-size: 80%;}
+.illegal {}
+
+img.block {display: block;}
+a:link {color: #0000ff;}
+a:visited {background-color: #ffffff; color: #777777;}
+a:hover {background-color: #ffdddd; color: black;}
+a:active {background-color: #ffffff; color: #ff0000;}

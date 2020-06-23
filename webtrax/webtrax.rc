@@ -1,0 +1,153 @@
+# webtrax.rc file example, Webtrax v23
+#
+$site_name = "D.R. Sperry"; # site name for the report
+$stylesheet = "mystyle.css";	# optional style sheet
+$log_file = "httpd_access.0";   # name of the input log file
+$output_file = "report.html";   # name of the output file
+$return_URL = "index.html";     # URL to return from html report
+$mailto_address = "";           # email address for mailed report
+$preamble = "preamble.txt";     # top boilerplate
+$postamble = "postamble.txt";   # bottom boilerplate
+$mail_program = "/usr/sbin/Mail"; # location of your system's mail program
+$summary_lines = "31";          # number of script runs to summarize
+$expire_time = "1800";          # elapsed time until "visit" ended
+$show_directories = "no";	# display paths with filenames
+$count_pages = "yes";		# count *.html accesses
+$count_gifs = "no";		# count *.gif accesses (not in details section)
+$count_pngs = "no";		# count *.png accesses (not in details section) V23
+$count_jpegs = "no";		# count *.jpg accesses
+$count_downloads = "yes";	# count *.exe/zip/Z/hqx/sit accesses
+$count_sounds = "no";		# count *.au/mp2/wav accesses
+$count_javas = "yes";		# count *.class accesses
+$count_cgis = "no";		# count *.cgi accesses
+$count_other = "yes";		# count other accesses
+$count_notfound = "yes";	# count notfound accesses
+$show_histogram = "yes";	# show when sessions started
+$show_tldsum = "yes";		# summarize by top level domain
+$show_cum = "yes";		# keep long term stats
+$show_referrer = "yes";		# show interesting referrers in details
+$show_browser = "yes";		# show report by browser
+$show_engine = "yes";		# show report by search engine
+$show_query = "yes";		# show report by query string
+$show_visit_list = "yes";	# show list of visits
+$show_each_hit = "yes";         # show each file in a visit
+$show_analysis = "yes";         # show derived figures
+$show_retcodes = "yes";         # analysis by retcode
+$show_verbs = "yes";		# analysis by transaction verb NEW V23
+$show_referrer_hist = "yes";    # show cumulative referrer history
+$show_indexer_details = "no";   # show sessions for indexers
+$show_browser_in_details = "yes"; # show browser ID in detail NEW v19
+$min_details_session = "1";	# show visits with at least this many pages NEW v23
+$cumulate_search_terms = "no";	# remember search terms in cumreferrer.hit NEW v23
+$javapie = "yes";	     	# do Java pie charts in HTML mode NEW v23
+$rettype = "404:2:fnf";		# list 404s in the details NEW v23
+$rettype = "302:1";             # say you wanted to count 302s as valid 
+#
+$kill_referrer = "http://www.best.com/~thvv/"; # don't show this site as a referrer
+$kill_referrer = "https://www.drsperry.com/"; # .. or this one
+$ignore_hits_from = "kip.saturn.sun.com"; # completely ignore hits from this site
+$special_domain = ".aol.com"; # treat this domain as if top level
+$special_domain = ".compuserve.com"; # .. this too
+$nshowpages = "10000";		# number of today's HTML pages to show
+$nshowbrowswerhits = "10000";	# number of today's browser hits to show
+$nshowtopleveldomains = "10000"; # number of today's toplevel domains to show
+$nshowbusydomains = "10000";	# number of today's busy (full) domains to show
+$nshowqueryhits = "10000";	# number of today's query hits to show
+$nshowreferrerhits = "10000";	# number of today's referrer hits to show
+$nshowengine = "10000";		# number of today's engines to show
+$nshowbusycumpages = "20";	# number of busy pages to show longterm
+$nshowcumtldvisits = "20";	# number of cumulative visits by tld to show
+$nshowcumreferrers = "50";      # number of cumulative referrers to show
+$nodetails_extensions = "gif$|jpg$|au$|mp2$|mp3$|wav$|css$|ico$"; # which files are omitted from details V23
+$nocumpage_extensions = "gif$|jpg$|au$|mp2$|mp3$|wav$|css$|ico$"; # which files are omitted from cumpage V23
+$sound_extensions = "au$|mp2$|mp3$|wav$";
+$download_extensions = "exe$|zip$|z$|hqx$|sit$|pdf$";
+$sourcefile_extensions = "c$|h$|makefile$|java$|cpp$|pl$";
+#
+$headpage = "tvv.html";
+$headpage = "multics.html";
+$headpage = "index.html";
+$headpage = "mulvaney.html";
+# robots are looked for with ignore-case
+$robot = "arachnoidea";
+$robot = "aspseek";
+$robot = "cartographer";
+$robot = "crawler";
+$robot = "digimarc";
+$robot = "echo";
+$robot = "emailsiphon";
+$robot = "ferret";
+$robot = "googlebot";
+$robot = "gulliver";
+$robot = "htdig";
+$robot = "hubater";
+$robot = "ia_archiver";
+$robot = "infoseek sidewinder";
+$robot = "larbin";
+$robot = "lnspiderguy";
+$robot = "mercator";
+$robot = "moget";
+$robot = "obot";
+$robot = "perman surfer";
+$robot = "scooter";
+$robot = "slurp";
+$robot = "spider";
+$robot = "teleport";
+$robot = "walker";
+$robot = "wisewire-widow";
+$robot = "www.first-search.com";
+#
+$robotdomain = "crawl.*looksmart.com";	# all hits from here are indexers NEW V23
+#
+$wars = "WebTV";
+$wars = "MSIE";
+$wars = "Mozilla";
+$wars = "Lynx";
+$wars = "Java";
+$wars = "Safari";
+$wars = "Konqueror";
+$wars = "Opera";
+$wars = "Camino";
+#
+$platform = "Win95";
+$platform = "Win98";
+$platform = "WinNT";
+$platform = "Win32";
+$platform = "Windows 98";
+$platform = "Windows 95";
+$platform = "Windows NT";
+$platform = "Windows 2000";
+$platform = "Windows Me";
+$platform = "Windows XP";
+$platform = "Windows";
+$platform = "Mac";
+$platform = "Linux";
+$platform = "FreeBSD";
+$platform = "IRIX";
+$platform = "SunOS";
+$platform = "OS/2";
+$platform = "Unix";
+#
+# Example of setting visit classes
+$class = "360-67.html:tvv";
+$class = "6180pix.html:multics";
+$class = "/swe/:swe";
+#
+# some transformations on the input.
+$pre_referrer = "s/\[unknown origin\]/-/i";
+$pre_file = "s/beth\/index\.html/beth_index.html/";
+$pre_url = "s/\/go.php[?]to=(.*)/go:\1/"; # preprocess URL for exit pages
+$pre_domain = "s/j....\.inktomisearch\.com$/jxxxx.inktomisearch.com/i";   # preprocessing
+# 
+$inred = "favicon.ico";         # show this filename in red
+$filedisplay = "cac,help.html";	# show this filename in pink NEW V23
+$hotlink_html_prefix = "../";   # fix hotlinks
+#
+$do_reverse_dns = "yes";        # DNS reverse lookup
+$dnscache_file = "mycache";     # DNS reverse lookup cache file
+$do_geoip = "no";		# if YES, look up numeric domains to determine TLD
+geoip_file = "GeoIPCountryWhois.csv"; # pathname of the geoip input file
+#
+$max_domain_length = "25";      # trim domain to this length in report
+#
+# end

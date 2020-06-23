@@ -1,0 +1,378 @@
+#!/usr/bin/perl
+#####################################################################
+#
+# Web Log Extractor
+#
+# Reads an NCSA [combined] web server log and extracts a day's worth of data.
+# Optionally does reverse DNS lookup on numeric IPs.
+# Optionally does geoip lookup on numeric IPs.
+#
+# logextractor [-dns cachefile] [-geoip geoipfile] -day mm/dd/yyyy filepath ... > outpath
+# logextractor [-dns cachefile] [-geoip geoipfile] -day yyyy-mm-dd filepath ... > outpath
+# logextractor [-dns cachefile] [-geoip geoipfile] -day yesterday filepath ... > outpath
+# logextractor [-dns cachefile] [-geoip geoipfile] -day all filepath ... > outpath
+#
+# Finds all log entries that occurred on the given day and writes them to stdout.
+#
+# 07/23/04 THVV 1.0
+# 08/25/04 THVV 1.1 Add geoip processing
+# 03/30/06 THVV 1.2 Add -v and allow size of "-"
+# 04/11/06 THVV 1.21 Handle escaped quote in quoted strings
+
+$version = '1.21';
+$me ='logextractor';
+
+if ($#ARGV < 2) {
+    die "$me: too few arguments";
+}
+
+my $verbose = 0;
+my $yyyy = 0;
+my $mm = 0;
+my $mmm = '';
+my $dd = 0;
+$dnssw = 0;
+$geoipsw = 0;
+$geon = 0;
+$dnsn = 0;
+$geoip_file = 'GeoIPCountryWhois.csv';
+$dnscachefile = '';
+while ($#ARGV >= 0) {
+    $arg = shift;
+    if ($arg eq "-day") {
+	$indate = shift;
+	if ($indate =~ /(\d+)\/(\d+)\/(\d\d\d\d)/) {
+	    $mm = int($1);
+	    $dd = int($2);
+	    $yyyy = $3;
+	} elsif ($indate =~ /(\d\d\d\d)-(\d+)-(\d+)/) {
+	    $yyyy = $1;
+	    $mm = int($2);
+	    $dd = int($3);
+	} elsif ($indate eq "all") {
+	    $yyyy = -1;
+	} elsif ($indate eq "yesterday") {
+	    my $ONEDAY = 86400;
+	    my $hour = 0;
+	    my $sec = 0;
+	    my $min = 0;
+	    my $wday = 0;
+	    my $yday = 0;
+	    my $isdat = 0;
+	    ($sec,$min,$hour,$dd,$mm,$yyyy,$wday,$yday,$isdat) = localtime(time - $ONEDAY);
+	    $yyyy += 1900;	# Perl year is 101 for 2001.
+	    $mm++;		# Perl month was 0-11
+	} else {
+	    die "$me: invalid date format $indate";
+	}
+    } elsif ($arg eq "-v") {
+	$verbose = 1;
+    } elsif ($arg eq "-dns") {
+	$dnssw = 1;
+	$dnscachefile = shift;
+    } elsif ($arg eq "-geoip") {
+	$geoipsw = 1;
+	$geoip_file = shift;
+    } else {
+	if ($yyyy == 0) {
+	    die "$me: -day not specified";
+	}
+	@moname = ('','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec');
+	$mmm = $moname[$mm];
+	#print "$arg $yyyy $mmm $dd\n";
+	&process_one_file($arg, $yyyy, $mmm, &twodigit($dd));
+    }
+} # while
+&writednscache($dnscachefile) if $dnssw;
+exit(0);
+
+#----------------------------------------------------------------
+# Process one log file
+
+sub process_one_file {
+    my $the_log_file = shift;
+    my $yyyy = shift;
+    my $mmm = shift;
+    my $dd = shift;
+
+    my $cursor;
+    my $itemx;
+    my $ex;
+    my $junk;
+    my @items;
+
+    if ($the_log_file =~ /\.gz$|\.z$/i) {
+	open(LOG, "zcat $the_log_file |") or return;
+    } else {
+	open(LOG, "$the_log_file") or return;
+    }
+
+    while(<LOG>) { # scan the file
+        
+# parse each line into tokens delimited by space.
+# tokens may be quoted or bracketed if they contain spaces.
+        
+        chop;
+        $line = $_;
+
+	$cursor = 0;
+        $itemx = 0;
+        while ($cursor < length($line)) {
+            while (substr($line, $cursor, 1) eq ' ') {
+            	$cursor++;	# kill leading blanks
+            }
+            if (substr($line, $cursor, 1) eq '"') { # quoted string
+	        # inside this string, backslash-quote should be preserved
+	        my $ws = '';
+		my $more = 1;
+		$cursor++;
+		while (($more == 1) && ($cursor < length($line))) {
+		    if (substr($line, $cursor, 2) eq '\\"') {
+			$ws .= '\\"';
+			$cursor++; # extra bump
+		    } elsif (substr($line, $cursor, 1) eq '"') {
+			$more = 0;
+		    } else {
+			$ws .= substr($line, $cursor, 1);
+		    }
+		    $cursor++;
+		}
+            	$items[$itemx++] = $ws;
+            } # quoted string
+            elsif (substr($line, $cursor,1) eq '[') { # bracketed string
+            	$ex = index(substr($line, $cursor+1), ']');
+            	if ($ex < 0) {$ex = length($line)-$cursor}
+            	$items[$itemx++] = substr($line, $cursor+1, $ex);
+            	$cursor += $ex+2;
+            } # bracketed string
+            else { # space delimited string
+            	$ex = index(substr($line, $cursor), ' ');
+            	if ($ex < 0) {$ex = length($line)-$cursor}
+            	$items[$itemx++] = substr($line, $cursor, $ex);
+            	$cursor += $ex;
+            } # space delimited string
+        } # while cursor
+	next if !defined($items[0]);
+        
+# Record is split into $items.  Interpret and normalize fields.
+# Standard form: DOMAIN DIR - TIME COMMAND RETCODE SIZE [REFERRER] [BROWSER]
+        
+        my $referrer = '-';
+	my $browser = '-';
+	my $query = '-';
+	my $engine = '-';
+	my $verb = '';
+        my $domain = $items[0];	# where the hit came from
+        my $accessed_dir = $items[1]; #not used
+        my $hyphen = $items[2]; # not used
+        my $access_time = $items[3]; # time of the hit
+        my $command = $items[4]; # HTTP command, e.g. "GET pathname protocol"
+        my $retcode = $items[5]; # HTTP ERROR code
+	if (!($retcode =~ /^[0-9]+$/)) { # retcode should be all digits
+	    print "bad code: $line\n" if $verbose;
+	    next;		# end processing of record
+	}
+        my $size = $items[6];	# size in bytes
+	$size = 0 if $size eq '-'; # 304 responses may have a size of hyphen
+	if ($size !~ /^\d+$/) {  # Skip this hit if size is not numeric.. ill formed hit record
+	    print "bad size: $line\n" if $verbose;
+	    next;		  # end processing of record
+	}
+        if ($itemx > 6) { # if there is a referrer string in the log
+	    $referrer = $items[7];
+	    $referrer = '-' if $referrer eq '';
+        } # if there is a referrer string in the log
+
+        if ($itemx > 7) { # if there is a browser string in the log
+	    $browser = $items[8];
+        } # if there is a browser string in the log
+
+# Normalize domain and do reverse DNS and geoip if wanted.
+
+	$domain =~ s/\.$//; # Remove trailing dot from domain
+	my $geoip = '';
+	if ($domain =~ /^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\[(.*)\]$/) {
+	    $geoip = $2;	# been here before?
+	    $domain = $1;
+	} elsif ($domain =~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/) {
+	    $geoip = &lookup_geoip($domain, $main::geoip_file) if $main::geoipsw;
+	    $domain = &reversedns($domain, $main::dnscachefile) if $main::dnssw;
+	}
+	my $tld = $domain;	# Normalize toplevel domain.
+	$tld =~ tr/A-Z/a-z/;
+	my $cursor = rindex ($tld, '.');
+	$tld = substr($tld, $cursor) if $cursor >= 0; # toplevel domain
+	if ($tld =~ /^\.\d*$/) { # if tld all digits, ie reversedns didn't work
+	    if ($geoip ne '') {
+		$tld = '.' . $geoip; # tld is geoip value
+		$domain .= '['.$geoip.']'; # domain gets geoip appended
+	    } else {
+		$tld = 'numeric';
+	    }
+	} elsif (($geoip ne '') && ($tld ne ('.'.$geoip))) {
+	    $domain .= '['.$geoip.']'; # if geoip disagrees with tld, show both
+	}
+
+# Break down the date, check it, and print record
+
+	if ($yyyy == -1) {	# "-day all"
+	    print "$domain $accessed_dir $hyphen \[$access_time\] \"$command\" $retcode $size \"$referrer\" \"$browser\"\n";
+	} elsif ($access_time =~ /^(.*)\/(.*)\/(.*):(\d\d):(\d\d):(\d\d)/) {
+	    $tdd = $1;
+	    $tmmm = $2; # 3 letter abbr
+	    $tyyyy = $3;
+	    if (($yyyy eq $tyyyy) && ($mmm eq $tmmm) && ($dd eq $tdd)) {
+		print "$domain $accessed_dir $hyphen \[$access_time\] \"$command\" $retcode $size \"$referrer\" \"$browser\"\n";
+	    }
+	} else {
+	    print "cannot parse $access_time\n";
+	}
+
+    } # while <LOG>
+    close LOG;
+} # process_one_file
+
+# ================================================================
+# prettifier for dates
+# $val = &twodigit ($field)
+# uses global: -
+# sets global: -
+sub twodigit {			# returns field with leading zero if necessary
+    local($x) = shift;
+    return "$x" if ($x > 9);
+    return "0$x";
+} # twodigit
+
+# ================================================================
+# reversedns(domain) translates numeric URLs into names
+# .. caches its result
+# $remoteIP = &reversedns($ip, $dnscachefile);
+# reads and writes DNS cache file
+# globals: $dnscache_nam, $dnscache_arg
+sub reversedns {
+    my $dom = shift;
+    my $dnscachefile = shift;
+    my(@adr, $arg, $ali, $typ, $len, @ads);
+    my $nam = $dom;
+    if ($main::dnsn == 0) {
+	&readdnscache($dnscachefile);
+    }
+    if ($main::dnscache_nam{$dom}) {
+	$nam = $main::dnscache_nam{$dom}; # found, no need to look
+    } else { # not found
+	@adr = split(/\./, $dom); # split up numeric addr
+	$arg = pack('C4', $adr[0], $adr[1], $adr[2], $adr[3]);
+	($nam, $ali, $typ, $len, @ads) = gethostbyaddr($arg, 2);
+	if ($nam eq '') {
+	    $nam = $dom;	# reverse lookup failed
+	}
+ 	$main::dnscache_nam{$dom} = $nam; # remember result either way
+	$main::dnscache_arg{$dom} = $arg;
+    }
+    return $nam;
+} # reversedns
+
+sub readdnscache {
+    my $dnscachefile = shift;
+    my ($carg, $cnum, $cnam);
+    if (open(DNSCACHE, $dnscachefile)) {
+	while (<DNSCACHE>) {
+	    chop;
+	    ($carg, $cnum, $cnam) = split (/ /, $_);
+	    $main::dnscache_nam{$cnum} = $cnam;
+	    $main::dnscache_arg{$cnum} = $carg;
+	    $main::dnsn++;
+	} # while
+	close (DNSCACHE);
+    }
+} # readdnscache
+
+sub writednscache {
+    my $dnscachefile = shift;
+    my ($carg, $cnum, $cnam);
+    if (open(DNSCACHE, ">$dnscachefile")) {
+	foreach (keys %main::dnscache_nam) {
+	    $cnam = $main::dnscache_nam{$_};
+	    $carg = $main::dnscache_arg{$_};
+	    print DNSCACHE "$carg $_ $cnam\n";
+	} # foreach
+	close (DNSCACHE);
+    }
+} # writednscache
+
+# ================================================================
+# lookup_geoip(domain) translates numeric URLs into 2 letter country names
+# Globals: %geoipcache, $geolo, $geohi, $geocc, $geon
+sub lookup_geoip {
+    my $dom = shift;
+    my $geofile = shift;
+    my $nam = '';
+    my $ans = '';
+    if ($main::geon == 0) {
+	&read_geoip($geofile);
+    }
+    if ($dom =~ /(\d+)\.(\d+)\.(\d+)\.(\d+)/) {
+	if ($main::geoipcache{$dom}) {      # in cache?
+	    return $main::geoipcache{$dom}; # yes
+	} else {
+	    my $numval = $4 + 256*($3 + 256*($2 + 256*$1));
+	    my $d = int(($main::geon+1)/2);
+	    my $i = $d;
+	    my $min = 0;
+	    my $max = $main::geon;
+	    while (($i >= $min)&&($i < $max)&&($d > -3)) {
+		my $lo = $main::geolo[$i];
+		my $hi = $main::geohi[$i];
+		my $cc = $main::geocc[$i];
+		if (($lo <= $numval) && ($numval <= $hi)) {
+		    $ans = $cc;
+		    $ans =~ tr/A-Z/a-z/;
+		    last;
+		} elsif ($numval < $lo) {
+		    $max = $i;
+		    $d = int($d/2);
+		    if ($d <= 0) {
+			$i--;
+			$d--;
+		    } else {
+			$i -= $d;
+		    }
+		} elsif ($numval > $hi) {
+		    $min = $i+1;
+		    $d = int($d/2);
+		    if ($d <= 0) {
+			$i++;
+			$d--;
+		    } else {
+			$i += $d;
+		    }
+		} else {
+		    last;
+		}
+            }
+	    $main::geoipcache{$dom} = $ans;
+	} # not in cache
+    } # if dom
+    return $ans;
+} #lookup_geoip
+
+sub read_geoip {
+# Globals: $geolo, $geohi, $geocc, $geon
+    my $file = shift;
+    if (open(GEO, $file)) {
+	while (<GEO>) {
+	    if (/".*",".*","(.*)","(.*)","(.*)",".*"/) {
+		my $lo = $1;
+		my $hi = $2;
+		my $cc = $3;
+		$main::geolo[$main::geon] = $lo;
+		$main::geohi[$main::geon] = $hi;
+		$main::geocc[$main::geon] = $cc;
+		$main::geon++;
+	    } # if record
+	} # while
+	close GEO;
+    } else {
+	$main::geon = -1;	# try to read only once
+    }
+} # read_geoip
