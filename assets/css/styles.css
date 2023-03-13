@@ -281,3 +281,7 @@ article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
   opacity: 1;
 }
 
+.text-center {
+  text-align: left!important;
+}
+
