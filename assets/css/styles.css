@@ -18,11 +18,6 @@
   margin-top: -5px;
 }
 
-.dh-header-non-rectangular-container h1, p {
-  color: white;
-  font-weight: bold;
-}
-
 footer {
   background-color: #292c2f;
   box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.12);
@@ -32,7 +27,7 @@ footer {
   font: bold 16px sans-serif;
   padding: 55px 50px;
   position: absolute;
-  color: #fff;
+  /*color: #fff;*/
 }
 
 .nav-link.nav-butt-link {
@@ -283,5 +278,13 @@ article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
 
 .text-center {
   text-align: left!important;
+}
+
+a {
+  color: #64a0d2;
+  text-decoration: none;
+  font-family: 'Abel';
+  background-color: transparent;
+  font-weight: 903;
 }
 
